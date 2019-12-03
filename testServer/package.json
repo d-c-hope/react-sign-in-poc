@@ -1,0 +1,15 @@
+{
+  "name": "testServer",
+  "version": "1.0.0",
+  "dependencies": {
+    "@koa/cors": "^3.0.0",
+    "koa": "^2.11.0",
+    "koa-router": "^7.4.0",
+    "nodemon": "^2.0.0",
+    "koa-body": "^4.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start-dev": "node  testserverapp.js"
+  }
+}
