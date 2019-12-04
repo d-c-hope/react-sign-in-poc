@@ -7,7 +7,7 @@ import './RootJourneys/Signin/App.css';
 import SigninApp from "./RootJourneys/Signin/SigninApp";
 
 
-class SigninAppRoot extends React.Component {
+class AppRoot extends React.Component {
 
   render(props) {
 
@@ -23,4 +23,4 @@ class SigninAppRoot extends React.Component {
 }
 
 
-export default SigninAppRoot;
+export default AppRoot;
