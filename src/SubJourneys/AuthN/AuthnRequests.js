@@ -6,9 +6,9 @@ const passwordAPI = "http://localhost:3001/signin/authn/password";
 
 class Requests {
 
-    constructor(storedState) {
-        this.storedState = storedState;
-    }
+    // constructor(storedState) {
+    //     this.storedState = storedState;
+    // }
 
     async postUsername(email) {
             const res = await axios.post(usernameAPI, {'email': email}, {withCredentials: true});

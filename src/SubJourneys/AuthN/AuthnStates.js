@@ -7,21 +7,16 @@ const PASSWORD = 'PASSWORD';
 const POSTING_PASSWORD = 'POSTING_PASSWORD';
 const CAPTCHA = 'CAPTCHA';
 const ERROR = 'ERROR';
+const USERNAME_ERROR = 'USERNAME_ERROR';
+const PASSWORD_ERROR = 'PASSWORD_ERROR';
 const DONE = 'DONE';
 
 
 function getNextSteps(authnmethods, extraState) {
 
-    if (authnmethods.includes("password")) {
-        return PASSWORD;
-    }
-    else if (authnmethods.includes("done")) {
-        return DONE;
-    }
-    else {
-        return ERROR;
-    }
-
+    if (authnmethods.includes("password")) return PASSWORD;
+    else if (authnmethods.includes("done")) return DONE;
+    else return ERROR;
 }
 
 
@@ -34,7 +29,13 @@ function * postUser(machine, requests, email) {
         return {'name': state, 'email':email};
     } catch (error) {
         console.log("Error: " + error);
-        return ERROR;
+        if (error.response.data.errorCount > 3) {
+            return {name: 'CAPTCHA', };
+        }
+        else {
+            return {name: 'USERNAME', errorCount: error.response.data.errorCount};
+        }
+
     }
 }
 
@@ -63,17 +64,30 @@ const statesAndTransitions = {
     },
     POSTING_USERNAME : {
         'go to password': {name: PASSWORD},
-        'go to error': {name: ERROR},
+        //'go to username error': function(errorCount) {return {name: USERNAME, failureCount: errorCount}},
+        'go to error' : {name: USERNAME},
+        'go to captcha' : {name: CAPTCHA, returnPath: USERNAME}
     },
     PASSWORD : {
         'go to posting password': postPassword
     },
     POSTING_PASSWORD : {
-        'go to error': {name: ERROR},
         'go to done' : {name: DONE},
+        'go to password error': {name: PASSWORD, failure: true},
+        'go to captcha' : {name: CAPTCHA, returnPath: PASSWORD}
     },
-    ERROR : {
-        'done': null
+    // USERNAME_ERROR : {
+    //     'done': null,
+    //     'go to username' : {name: USERNAME},
+    // },
+    // PASSWORD_ERROR : {
+    //     'done': null,
+    //     'go to password': {name: PASSWORD},
+    // },
+    CAPTCHA : {
+        'done': null,
+        'go to username' : {name: USERNAME},
+        'go to password': {name: PASSWORD},
     },
     DONE: {
         'done': null

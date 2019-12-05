@@ -5,6 +5,7 @@ class Username extends React.Component {
     constructor(props) {
         super(props);
         this.state = {value: '', isDone: false};
+        console.log("error count " + props.errorCount);
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,6 +32,8 @@ class Username extends React.Component {
                 <div className="nextButtonWrapper">
                     <input className="nextButton"type="submit" value="Next" />
                 </div>
+                <p>{this.props.errorCount ? 'Error count: ' + this.props.errorCount : ''}</p>
+
             </form>
         );
     }

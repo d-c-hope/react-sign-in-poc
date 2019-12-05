@@ -12,7 +12,7 @@ import Authn from '../../SubJourneys/AuthN/Authn'
 import Tcs from '../../SubJourneys/Tcs/Tcs'
 import './App.css';
 import {Machine} from "stent/lib";
-import {StoredState} from "./StoredState";
+import {SigninStoredState} from "./SigninStoredState";
 import {statesAndTransitions, START, CHECK_IF_DONE, LOADED, ERROR, TCS, AUTHENTICATION, DONE} from './SigninStates';
 import Requests from "./Requests";
 import {pickNextSubJourney} from "./StatePicker";
@@ -25,7 +25,7 @@ class SigninApp extends React.Component {
   constructor(props) {
     super(props);
 
-    this.storedState = new StoredState();
+    this.storedState = new SigninStoredState("signinstate");
     this.storedState.load();
     this.requests = new Requests(this.storedState);
     this.ptp = ["sky", "gb", "skygo"];

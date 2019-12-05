@@ -27,6 +27,10 @@ const authNSteps = {
     DONE: 'done'
 };
 
+var captchaCounts = {
+    "username": 0,
+    "password" : 0
+}
 
 
 let signinStepsForPTP = {
@@ -202,7 +206,13 @@ const Signin = (router) => {
     router.post('/authn/username', bodyParser, (ctx) => {
 
         if (ctx.request.body.email == "bbb") {
+            captchaCounts['username'] += 1;
+            ctx.body = {
+                captchaNeeded: false,
+                errorCount: captchaCounts['username']
+            }
             ctx.status = 403;
+            if (captchaCounts['password'] == 1) ctx.body.captchaNeeded = true;
         }
         else {
             ctx.status = 200;
@@ -266,7 +276,7 @@ const app = new Koa();
 app.use(async (ctx, next) => {
 
     await new Promise(resolve => {
-        setTimeout(resolve, 3000);
+        setTimeout(resolve, 1000);
     });
     await next();
 

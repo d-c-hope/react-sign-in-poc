@@ -34,6 +34,7 @@ class Authn extends React.Component {
             isError: false,
             needsRedirect: false,
             subJourney: null,
+            uErrorCount: 0
         };
     }
 
@@ -68,6 +69,10 @@ class Authn extends React.Component {
     mapMachineStateToComponentState(aMachine) {
 
         if (this.state.needsRedirect === true) return null;
+        var goBackMachineState = null;
+        if (this.state.subJourney == "Username") {
+            goBackMachineState = "USERNAME"
+        }
 
         console.log("authn state now " + aMachine.state.name + "needs redirect" + this.state.needsRedirect);
         if (aMachine.state.name === POSTING_USERNAME) {
@@ -77,7 +82,7 @@ class Authn extends React.Component {
             this.setState({isLoading: true});
         }
         else if (aMachine.state.name === USERNAME) {
-            this.setState({isLoading: false, subJourney: "Username", needsRedirect:true});
+            this.setState({isLoading: false, subJourney: "Username", needsRedirect:true, uErrorCount: aMachine.state.errorCount});
         }
         else if (aMachine.state.name === PASSWORD) {
             this.email = this.state.email;
@@ -125,7 +130,7 @@ class Authn extends React.Component {
                     <h1>Sign In</h1>
                     <Switch>
                         <Route path={`${path}/username`}>
-                            <Username onUsername={this.onUsername}/>
+                            <Username onUsername={this.onUsername} errorCount={this.state.uErrorCount}/>
                         </Route>
                         <Route path={`${path}/password`}>
                             <Password onPassword={this.onPassword}/>
