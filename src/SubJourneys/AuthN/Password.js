@@ -27,7 +27,9 @@ class Password extends React.Component {
                     Password:
                 </label>
                 <input className="authnEntry" type="text" name="password" value={this.state.value} onChange={this.handleChange}/>
-                <input className="nextButton" type="submit" value="Submit"/>
+                <div className="nextButtonWrapper">
+                    <input className="nextButton" type="submit" value="Submit"/>
+                </div>
             </form>
         );
     }

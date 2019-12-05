@@ -5,10 +5,9 @@ const USERNAME = 'USERNAME';
 const POSTING_USERNAME = 'POSTING_USERNAME';
 const PASSWORD = 'PASSWORD';
 const POSTING_PASSWORD = 'POSTING_PASSWORD';
-const CAPTCHA = 'CAPTCHA';
+const USERNAME_CAPTCHA = 'USERNAME_CAPTCHA';
+const PASSWORD_CAPTCHA = 'PASSWORD_CAPTCHA';
 const ERROR = 'ERROR';
-const USERNAME_ERROR = 'USERNAME_ERROR';
-const PASSWORD_ERROR = 'PASSWORD_ERROR';
 const DONE = 'DONE';
 
 
@@ -21,22 +20,8 @@ function getNextSteps(authnmethods, extraState) {
 
 
 function * postUser(machine, requests, email) {
-    yield POSTING_USERNAME;
+    yield {name: POSTING_USERNAME, email: email} ;
 
-    try {
-        const res = yield call(requests.postUsername, email);
-        let state = getNextSteps(res.authNMethods, res.extraState);
-        return {'name': state, 'email':email};
-    } catch (error) {
-        console.log("Error: " + error);
-        if (error.response.data.errorCount > 3) {
-            return {name: 'CAPTCHA', };
-        }
-        else {
-            return {name: 'USERNAME', errorCount: error.response.data.errorCount};
-        }
-
-    }
 }
 
 
@@ -48,7 +33,7 @@ function * postPassword(machine, requests, email, password) {
         return getNextSteps(res.authNMethods, res.extraState);
     } catch (error) {
         console.log("Error: " + error);
-        return ERROR;
+        return machine.goToPasswordError();
     }
 
 }
@@ -64,9 +49,9 @@ const statesAndTransitions = {
     },
     POSTING_USERNAME : {
         'go to password': {name: PASSWORD},
-        //'go to username error': function(errorCount) {return {name: USERNAME, failureCount: errorCount}},
+        'go to username': function(machine, errorCount) {return {name: USERNAME, errorCount: errorCount}},
         'go to error' : {name: USERNAME},
-        'go to captcha' : {name: CAPTCHA, returnPath: USERNAME}
+        'go to username captcha' : function(_, cID) {return {name: USERNAME_CAPTCHA, captchaRef: cID};}
     },
     PASSWORD : {
         'go to posting password': postPassword
@@ -74,19 +59,12 @@ const statesAndTransitions = {
     POSTING_PASSWORD : {
         'go to done' : {name: DONE},
         'go to password error': {name: PASSWORD, failure: true},
-        'go to captcha' : {name: CAPTCHA, returnPath: PASSWORD}
+        'go to password captcha' : function(_, cID) {return {name: PASSWORD_CAPTCHA, captchaRef: cID};}
     },
-    // USERNAME_ERROR : {
-    //     'done': null,
-    //     'go to username' : {name: USERNAME},
-    // },
-    // PASSWORD_ERROR : {
-    //     'done': null,
-    //     'go to password': {name: PASSWORD},
-    // },
-    CAPTCHA : {
-        'done': null,
+    USERNAME_CAPTCHA : {
         'go to username' : {name: USERNAME},
+    },
+    PASSWORD_CAPTCHA : {
         'go to password': {name: PASSWORD},
     },
     DONE: {
@@ -94,4 +72,6 @@ const statesAndTransitions = {
     }
 };
 
-export {statesAndTransitions, START, USERNAME, POSTING_USERNAME, PASSWORD, POSTING_PASSWORD, CAPTCHA, ERROR, DONE};
+export {statesAndTransitions, getNextSteps, START, USERNAME,
+    POSTING_USERNAME, PASSWORD, POSTING_PASSWORD, USERNAME_CAPTCHA,
+    PASSWORD_CAPTCHA, ERROR, DONE};

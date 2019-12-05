@@ -44,3 +44,9 @@ Stent is not used with the Redux style React adapter than is provided. Rather th
 ## Cookies
 The e-cookie value is intended to show the payload that would go in an encrypted cookie
 However, note that it is not encrypted for this PoC, it is just encoded
+
+## Unfinished parts
+Everything is fairly rough but some key features not yet implemented include:
+ * Some of the configuration that should be driven off the ptp header is currently hardcoded
+ * Captcha always succeeds - no fake backend to validate it like email, password etc
+ * No captcha on password fails yet on frontend

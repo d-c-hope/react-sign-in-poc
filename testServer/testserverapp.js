@@ -68,7 +68,7 @@ function handleIsComplete(eCookieObj, headers) {
 }
 
 function validateCreds(email, password) {
-    if (password == "aa") {return false}
+    if (password == "bbb") {return false}
     else return "45646";
 }
 
@@ -77,11 +77,16 @@ function handlePassword(email, password, eCookieObj, headers) {
 
     let profileID = validateCreds(email, password);
     if (!profileID) {
-        return {
+        captchaCounts['password'] += 1;
+        let r = {
             "ret" : {authNMethods: ["password"], extraState: {}},
             "eCookie" : eCookieObj,
-            "status" : 403
+            "status" : 403,
+            "captchaNeeded": false,
+            "errorCount": captchaCounts['password']
         }
+        if (captchaCounts['username'] == 2) ctx.body.captchaNeeded = true;
+        return r;
     }
     else {
         eCookieObj['completedAuthN'] = ["password"];
@@ -107,8 +112,6 @@ function handlePassword(email, password, eCookieObj, headers) {
 }
 
 
-// WARNING
-// Not yet tested!
 function handleTcs(tcs, eCookieObj, headers) {
 
     let profileID = eCookieObj['nsprofileid'];
@@ -212,7 +215,7 @@ const Signin = (router) => {
                 errorCount: captchaCounts['username']
             }
             ctx.status = 403;
-            if (captchaCounts['password'] == 1) ctx.body.captchaNeeded = true;
+            if (captchaCounts['username'] == 2) ctx.body.captchaNeeded = true;
         }
         else {
             ctx.status = 200;
@@ -235,9 +238,7 @@ const Signin = (router) => {
         let retECookie = encodeObjAsCookie(resp['eCookie']);
         // cookies.set('LastVisit', new Date().toISOString(), { signed: true })
         ctx.cookies.set("e-cookie", retECookie, {});
-        if (ctx.status == 200) {
-            ctx.body = resp['ret'];
-        }
+        ctx.body = resp['ret'];
     });
 
     // not complete yet
@@ -276,7 +277,7 @@ const app = new Koa();
 app.use(async (ctx, next) => {
 
     await new Promise(resolve => {
-        setTimeout(resolve, 1000);
+        setTimeout(resolve, 2000);
     });
     await next();
 

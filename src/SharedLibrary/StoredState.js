@@ -3,7 +3,6 @@
 
 class StoredState {
     constructor(localStorageKey) {
-        //{'isComplete' : false, 'completedSteps' : []}
         this.loadedStateObj = null;
         this.storeTime = 0;
         this.localStorageKey = localStorageKey; //"signinstate";

@@ -8,11 +8,13 @@ import {
     withRouter
 } from "react-router";
 import {Machine} from "stent/lib";
-import {statesAndTransitions, START, USERNAME, POSTING_USERNAME, PASSWORD, POSTING_PASSWORD, ERROR, DONE} from './AuthnStates';
+import {statesAndTransitions, START, USERNAME, POSTING_USERNAME, getNextSteps,
+    PASSWORD, POSTING_PASSWORD, USERNAME_CAPTCHA, PASSWORD_CAPTCHA, ERROR, DONE} from './AuthnStates';
 import Username from './Username';
 import Password from './Password';
 import Requests from "./AuthnRequests";
 import {connect} from "stent/lib/helpers";
+import Captcha from "./Captcha";
 
 
 let AUTHN_MACHINE = "AUTHN_MACHINE";
@@ -34,7 +36,8 @@ class Authn extends React.Component {
             isError: false,
             needsRedirect: false,
             subJourney: null,
-            uErrorCount: 0
+            uErrorCount: 0,
+            captchaRef: null
         };
     }
 
@@ -66,27 +69,47 @@ class Authn extends React.Component {
 
     }
 
+    goToNextStep(aMachine, authNMethods, extraState) {
+        let state = getNextSteps(authNMethods, extraState);
+        if (state === "PASSWORD") aMachine.goToPassword();
+        else if (state === "DONE") aMachine.goToDone();
+    }
+
     mapMachineStateToComponentState(aMachine) {
 
         if (this.state.needsRedirect === true) return null;
-        var goBackMachineState = null;
-        if (this.state.subJourney == "Username") {
-            goBackMachineState = "USERNAME"
-        }
 
         console.log("authn state now " + aMachine.state.name + "needs redirect" + this.state.needsRedirect);
         if (aMachine.state.name === POSTING_USERNAME) {
+
+            let callback = (resp) => {
+                if (resp.success === true) this.goToNextStep(aMachine, resp.authNMethods, resp.extraState);
+                else if (resp.captcha === true) aMachine.goToUsernameCaptcha("1");
+                else aMachine.goToUsername(resp.errorCount);
+            }
             this.setState({isLoading: true});
+            this.requests.postUsername(aMachine.state.email, callback);
         }
         else if (aMachine.state.name === POSTING_PASSWORD) {
             this.setState({isLoading: true});
         }
         else if (aMachine.state.name === USERNAME) {
-            this.setState({isLoading: false, subJourney: "Username", needsRedirect:true, uErrorCount: aMachine.state.errorCount});
+            this.setState({isLoading: false, subJourney: "Username", needsRedirect:true,
+                uErrorCount: aMachine.state.errorCount});
         }
         else if (aMachine.state.name === PASSWORD) {
             this.email = this.state.email;
             this.setState({isLoading: false, subJourney: "Password", needsRedirect:true});
+        }
+        else if (aMachine.state.name === USERNAME_CAPTCHA) {
+            let captchaRef = this.state.captchaRef;
+            this.setState({isLoading: false, subJourney: "UserCaptcha",
+                captchaRef: captchaRef, needsRedirect:true});
+        }
+        else if (aMachine.state.name === PASSWORD_CAPTCHA) {
+            let captchaRef = this.state.captchaRef;
+            this.setState({isLoading: false, subJourney: "PasswordCaptcha",
+                captchaRef: captchaRef,needsRedirect:true});
         }
         else if (aMachine.state.name === DONE) {
             this.onSubJourneyDone('authn');
@@ -105,6 +128,12 @@ class Authn extends React.Component {
 
     onPassword(password) {
         this.authnMachine.goToPostingPassword(this.requests, this.email, password);
+    }
+
+    onCaptchaDone() {
+        if (this.state.subJourney === "UserCaptcha") {
+            this.authnMachine.goToUsername();
+        }
     }
 
     render() {
@@ -127,13 +156,16 @@ class Authn extends React.Component {
         else {
             return (
                 <div>
-                    <h1>Sign In</h1>
+                    <h1 className="signin">Sign In</h1>
                     <Switch>
                         <Route path={`${path}/username`}>
                             <Username onUsername={this.onUsername} errorCount={this.state.uErrorCount}/>
                         </Route>
                         <Route path={`${path}/password`}>
                             <Password onPassword={this.onPassword}/>
+                        </Route>
+                        <Route path={`${path}/usercaptcha`}>
+                            <Captcha onCaptchaDone={this.onCaptchaDone} captchaRef={this.captchaRef}/>
                         </Route>
                         <Route path={`${path}/error`}>
                             <Error props={this.props.location}/>
@@ -154,6 +186,9 @@ class Authn extends React.Component {
         }
         else if (this.state.subJourney === "Username" && this.state.needsRedirect === true) {
             return path + "/username";
+        }
+        else if (this.state.subJourney === "UserCaptcha" && this.state.needsRedirect === true) {
+            return path + "/usercaptcha";
         }
         else if (this.state.subJourney === "Password" && this.state.needsRedirect === true) {
             return path + "/password";

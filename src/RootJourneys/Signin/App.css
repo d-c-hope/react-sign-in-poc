@@ -21,13 +21,19 @@
   color: #09d3ac;
 }
 
+h1.signin {
+  margin-bottom: 80px;
+}
+
 .journeyWrapper {
   margin: 50px;
-  padding: 50px;
+  padding: 10px 30px 50px 35px;
   border-style: solid;
-  border-width: 5px;
+  border-width: 2px;
   width: 50%;
   max-width: 300px;
+  min-height: 280px;
+  color: #2c27ba;
 }
 
 .authnLabel {
@@ -39,7 +45,7 @@
 }
 
 .nextButtonWrapper {
-  margin-top: 30px;
+  margin-top: 40px;
   padding-top: 20px;
 /*  background-color: #4CAF50; !* Green *!*/
 /*  border: none;*/
@@ -60,6 +66,7 @@
   margin: 4px 2px;
   cursor: pointer;
   font-size: 15pt;
+  border-radius: 6px;
 }
 
 
