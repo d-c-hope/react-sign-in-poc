@@ -13,7 +13,7 @@ import Tcs from '../../SubJourneys/Tcs/Tcs'
 import './App.css';
 import {Machine} from "stent/lib";
 import {StoredState} from "./StoredState";
-import {statesAndTransitions, START, FETCHING, LOADED, ERROR, TCS, AUTHENTICATION, DONE} from './SigninStates';
+import {statesAndTransitions, START, CHECK_IF_DONE, LOADED, ERROR, TCS, AUTHENTICATION, DONE} from './SigninStates';
 import Requests from "./Requests";
 import {pickNextSubJourney} from "./StatePicker";
 
@@ -76,7 +76,7 @@ class SigninApp extends React.Component {
       let hasLoaded = this.storedState.hasLoaded();
 
       if (!hasLoaded) {
-          this.journeysMachine.fetch(this.requests, this.storedState);
+          this.journeysMachine.checkIfDone(this.requests, this.storedState);
       }
       else {
           this.journeysMachine.goToLoaded();
@@ -104,13 +104,13 @@ class SigninApp extends React.Component {
           this.journeysMachine.goToTcs();
       }
       else if (nextJourney === "trycomplete") {
-          this.journeysMachine.goToNearlyDone(this.requests, this.storedState);
+          this.journeysMachine.checkIfDone(this.requests, this.storedState);
       }
   }
 
   mapMachineStateToComponentState(jMachine) {
       console.log("sign in state now " + jMachine.state.name);
-      if (jMachine.state.name === FETCHING) {
+      if (jMachine.state.name === CHECK_IF_DONE) {
           this.setState({isLoading: true});
       }
       if (jMachine.state.name === LOADED) {

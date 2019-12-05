@@ -25,7 +25,7 @@ and for the web app:
 
 
 Open [http://localhost:3000/signin](http://localhost:3000/signin) to view the sign-in app in the browser.
-In order to go through a simulated OAuth journey go to [http://localhost:3001/authorize](http://localhost:3001/authorize)
+In order to go through a simulated OAuth journey go to [http://localhost:3001/signin/authorize](http://localhost:3001/authorize)
 Note that after entering T&Cs the app will redirect back to /authorize and if the journey is complete the browser will 
 redirect to an external site
 

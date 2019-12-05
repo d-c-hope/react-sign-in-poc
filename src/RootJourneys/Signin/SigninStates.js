@@ -1,7 +1,7 @@
 import { call } from 'stent/lib/helpers';
 
 const START = 'START';
-const FETCHING = 'FETCHING';
+const CHECK_IF_DONE = 'CHECK_IF_DONE';
 const LOADED = 'LOADED';
 const ERROR = 'ERROR';
 const TCS = 'TCS';
@@ -9,8 +9,8 @@ const AUTHENTICATION = 'AUTHENTICATION';
 const DONE = 'DONE';
 
 
-function * fetch(machine, requests, storedState) {
-    yield FETCHING;
+function * fetchIsComplete(machine, requests, storedState) {
+    yield CHECK_IF_DONE;
 
     try {
         const res = yield call(requests.fetchIsComplete);
@@ -25,16 +25,16 @@ function * fetch(machine, requests, storedState) {
 const statesAndTransitions = {
 
     START: {
-        'fetch': fetch,
+        'check if done': fetchIsComplete,
         'go to loaded' : {name: LOADED}
     },
-    FETCHING: {
+    CHECK_IF_DONE: {
         'go to loaded': {name: LOADED},
     },
     LOADED : {
         'go to authn': {name: AUTHENTICATION},
         'go to tcs': {name: TCS},
-        'go to nearly done' : fetch,
+        'check if done' : fetchIsComplete,
         'go to done' : {name: DONE},
     },
     ERROR : {
@@ -42,15 +42,15 @@ const statesAndTransitions = {
     },
     AUTHENTICATION: {
         'go to tcs': {name: TCS},
-        'go to nearly done' : fetch
+        'check if done' : fetchIsComplete
 
     },
     TCS: {
-        'go to nearly done' : fetch,
+        'check if done' : fetchIsComplete,
     },
     DONE: {
         'done': null
     }
 };
 
-export {statesAndTransitions, START, FETCHING, LOADED, ERROR, TCS, AUTHENTICATION, DONE};
+export {statesAndTransitions, START, CHECK_IF_DONE, LOADED, ERROR, TCS, AUTHENTICATION, DONE};
