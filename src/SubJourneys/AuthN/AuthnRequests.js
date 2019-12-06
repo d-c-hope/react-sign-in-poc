@@ -10,11 +10,6 @@ class Requests {
     //     this.storedState = storedState;
     // }
 
-    // async postUsername(email) {
-    //         const res = await axios.post(usernameAPI, {'email': email}, {withCredentials: true});
-    //         return res.data;
-    // }
-
     postUsername(email, callback) {
 
         axios.post(usernameAPI, {'email': email}, {withCredentials: true})
@@ -22,33 +17,52 @@ class Requests {
                 console.log("Email post success");
                 let res = response.data;
                 // let state = getNextSteps(res.authNMethods, res.extraState);
-                let r = {'success':true, 'email':email, authNMethods: res.authNMethods,
-                    extraState: res.extraState};
+                let r = {
+                    'success': true, 'email': email, authNMethods: res.authNMethods,
+                    extraState: res.extraState
+                };
                 callback(r)
             })
             .catch(function (error) {
                 console.log("Email post error");
+                if (! error) callback({'success': false, 'email': email, 'unknown': true});
                 let res = error.response.data;
                 if (res.captchaNeeded) {
-                     let r = {'success':false, 'email':email, "captcha":true};
-                     callback(r);
-                }
-                else {
-                    let r = {'success':false, 'email':email, errorCount: res.errorCount};
+                    let r = {'success': false, 'email': email, "captcha": true};
+                    callback(r);
+                } else {
+                    let r = {'success': false, 'email': email, errorCount: res.errorCount};
                     callback(r);
                 }
             });
-
     }
 
 
-
-
-
-async postPassword(email, password) {
+    async postPassword(email, password) {
         const res = await axios.post(passwordAPI, {'email': email, 'password': password}, {withCredentials: true});
         return res.data;
     }
+
+
+    getCaptcha(captchaRef) {
+        let p = new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                resolve('randomstring');
+            }, 1000);
+        });
+        return p;
+
+    }
+
+    postCaptcha(captchaRef, captchaVal) {
+        let p = new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                resolve({'success' : true});
+            }, 1000);
+        });
+        return p;
+    }
+
 }
 
 export default Requests;

@@ -215,7 +215,7 @@ const Signin = (router) => {
                 errorCount: captchaCounts['username']
             }
             ctx.status = 403;
-            if (captchaCounts['username'] == 2) ctx.body.captchaNeeded = true;
+            if (captchaCounts['username'] >= 2) ctx.body.captchaNeeded = true;
         }
         else {
             ctx.status = 200;
@@ -257,6 +257,17 @@ const Signin = (router) => {
         }
     });
 
+
+    router.get('/captcha', (ctx) => {
+
+
+    });
+
+
+    router.post('/captcha', bodyParser, (ctx) => {
+
+
+    });
 
     router.get('/authorize', bodyParser, (ctx) => {
         var eCookieObj = getECookie(ctx);

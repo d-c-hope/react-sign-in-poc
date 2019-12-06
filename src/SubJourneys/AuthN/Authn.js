@@ -26,6 +26,7 @@ class Authn extends React.Component {
 
         this.onUsername = this.onUsername.bind(this);
         this.onPassword = this.onPassword.bind(this);
+        this.onCaptchaDone = this.onCaptchaDone.bind(this);
         this.requests = new Requests(null);
         this.email = null;
         this.onSubJourneyDone = props.onSubJourneyDone;
@@ -102,7 +103,7 @@ class Authn extends React.Component {
             this.setState({isLoading: false, subJourney: "Password", needsRedirect:true});
         }
         else if (aMachine.state.name === USERNAME_CAPTCHA) {
-            let captchaRef = this.state.captchaRef;
+            let captchaRef = aMachine.state.captchaRef;
             this.setState({isLoading: false, subJourney: "UserCaptcha",
                 captchaRef: captchaRef, needsRedirect:true});
         }
@@ -165,7 +166,7 @@ class Authn extends React.Component {
                             <Password onPassword={this.onPassword}/>
                         </Route>
                         <Route path={`${path}/usercaptcha`}>
-                            <Captcha onCaptchaDone={this.onCaptchaDone} captchaRef={this.captchaRef}/>
+                            <Captcha onCaptchaDone={this.onCaptchaDone} captchaRef={this.state.captchaRef}/>
                         </Route>
                         <Route path={`${path}/error`}>
                             <Error props={this.props.location}/>
